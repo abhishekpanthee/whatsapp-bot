@@ -1,0 +1,22 @@
+{
+  "name": "whsapp-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "Abhishek Panthee",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "mime": "^4.0.7",
+    "multer": "^2.0.2",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.33.1"
+  }
+}
