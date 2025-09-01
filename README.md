@@ -24,8 +24,8 @@ A powerful WhatsApp Web automation bot built with Node.js that provides REST API
 1. **Clone the repository:**
 
    ```bash
-   git clone <your-repo-url>
-   cd whatspp-
+   git clone https://github.com/abhishekpanthee/whatsapp-bot.git
+   cd whatsapp-bot
    ```
 
 2. **Install dependencies:**
@@ -193,7 +193,7 @@ For more control and customization, deploy on your own VPS.
 
    ```bash
    cd /var/www
-   sudo git clone <your-repo-url> whatsapp-bot
+   sudo git clone https://github.com/abhishekpanthee/whatsapp-bot.git whatsapp-bot
    cd whatsapp-bot
    sudo npm install
    ```
@@ -570,10 +570,6 @@ pm2 list
 railway logs
 ```
 
-## 📜 License
-
-ISC License - see LICENSE file for details.
-
 ## 👨‍💻 Author
 
 **Abhishek Panthee**
@@ -594,3 +590,4 @@ ISC License - see LICENSE file for details.
 If you find this project helpful, please give it a ⭐ on GitHub!
 
 For support, email contact@abhishekpanthee.com.np or create an issue on GitHub.
+
