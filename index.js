@@ -46,22 +46,71 @@ client.on("disconnected", (r) => {
   setTimeout(() => {
     console.log("[WWebJS] Attempting to reconnect...");
     client.initialize();
-  }, 5000);
+  }, 10000);
 });
 
 // Auto-reply configuration
 let autoReplyEnabled = true;
-let autoReplyMessage = `Hi {name}! Thanks for reaching out. 🙌 This is an automated response.
+let autoReplyMessage = `Dear {name},
 
-👉 If you're contacting me for *professional services* (cybersecurity, scripting, development, or collaborations), please email me at:
-✉ contact@abhishekpanthee.com.np
+Thank you for contacting me. This is an automated acknowledgment of your message.
 
-👉 If it's a *personal chat*, please wait I'll get back to you when I'm free. 😊
+BUSINESS INQUIRIES:
+For cybersecurity consulting, software development, automation solutions, or partnership opportunities, please email me directly at: abhi@tcioe.edu.np
 
-📄 In the meantime, feel free to check out my CV here:
-https://abhishekpanthee.com.np/cv`;
+RESPONSE TIME:
+I will respond to your message within 24-48 hours during business days (Sunday-Friday, Nepal Time).
 
+PROFESSIONAL PROFILE:
+Complete portfolio and credentials: https://abhishekpanthee.com.np/cv
+
+I appreciate your patience and look forward to connecting with you soon.
+
+Best regards,
+Abhishek Panthee
+Cybersecurity Consultant & Software Developer`;
+
+// Track when I last manually sent a message to each contact (for 4-day rule)
+const lastManualMessage = new Map(); // chatId -> timestamp
+
+// Track auto-replies to prevent duplicates (simple duplicate prevention)
 const autoRepliedContacts = new Set();
+
+// Check if we should send auto-reply based on 4-day rule
+function shouldSendAutoReply(chatId) {
+  // If we've already auto-replied to this contact recently, don't send again
+  if (autoRepliedContacts.has(chatId)) {
+    return false;
+  }
+
+  // Get when I last manually messaged this contact
+  const lastMessageTime = lastManualMessage.get(chatId);
+
+  // If no record (new contact), send auto-reply
+  if (!lastMessageTime) {
+    console.log(`[AUTO-REPLY] New contact detected: ${chatId}`);
+    return true;
+  }
+
+  // Check if 4 days have passed since my last manual message
+  const fourDaysInMs = 4 * 24 * 60 * 60 * 1000; // 4 days
+  const timeSinceLastMessage = Date.now() - lastMessageTime;
+  const shouldReply = timeSinceLastMessage > fourDaysInMs;
+
+  console.log(
+    `[AUTO-REPLY] Contact: ${chatId}, Days since last message: ${Math.round(
+      timeSinceLastMessage / (24 * 60 * 60 * 1000)
+    )}, Should reply: ${shouldReply}`
+  );
+
+  return shouldReply;
+}
+
+// Record when I manually send a message (updates the 4-day timer)
+function recordManualMessage(chatId) {
+  lastManualMessage.set(chatId, Date.now());
+  console.log(`[MANUAL-MESSAGE] Recorded manual message to: ${chatId}`);
+}
 
 async function getPersonalizedAutoReply(message) {
   try {
@@ -105,21 +154,29 @@ client.on("message", async (message) => {
     return;
   }
 
-  if (autoReplyEnabled && !autoRepliedContacts.has(message.from)) {
+  // Auto-reply logic with 4-day rule
+  if (autoReplyEnabled && shouldSendAutoReply(message.from)) {
     try {
       const personalizedReply = await getPersonalizedAutoReply(message);
 
+      // Send professional auto-reply message
       await client.sendMessage(message.from, personalizedReply);
-      autoRepliedContacts.add(message.from);
 
-      // Remove from auto-replied set after 24 hours (1 day) to allow auto-reply again
+      autoRepliedContacts.add(message.from);
+      console.log(
+        `[AUTO-REPLY] Sent professional auto-reply to: ${message.from}`
+      );
+
+      // Remove from auto-replied set after 4 days to allow auto-reply again
       setTimeout(() => {
         autoRepliedContacts.delete(message.from);
-      }, 24 * 60 * 60 * 1000); // 24 hours
+        console.log(
+          `[AUTO-REPLY] Cleared auto-reply cooldown for: ${message.from}`
+        );
+      }, 4 * 24 * 60 * 60 * 1000); // 4 days
     } catch (error) {
       console.error(`[ERROR] Failed to send auto-reply:`, error);
     }
-  } else if (autoReplyEnabled && autoRepliedContacts.has(message.from)) {
   }
 
   // Check if this message is a reply to another message
@@ -244,6 +301,9 @@ app.post("/send-text", async (req, res) => {
 
     const msg = await client.sendMessage(chatId, message);
 
+    // Track this as a manual message (resets the 4-day timer)
+    recordManualMessage(chatId);
+
     trackSentMessage(msg.id.id, chatId, message);
 
     res.json({ ok: true, id: msg.id.id, timestamp: msg.timestamp, to: chatId });
@@ -309,6 +369,9 @@ app.get("/auto-reply/status", (req, res) => {
     enabled: autoReplyEnabled,
     message: autoReplyMessage,
     totalAutoReplied: autoRepliedContacts.size,
+    totalTrackedContacts: lastManualMessage.size,
+    fourDayRule: "Auto-reply only if 4+ days since last manual message",
+    messageType: "Professional business auto-reply",
   });
 });
 
@@ -357,6 +420,18 @@ app.post("/auto-reply/clear-all", (req, res) => {
   res.json({ ok: true, message: `Cleared ${count} cooldowns` });
 });
 
+app.post("/manual-message/:number", (req, res) => {
+  const { number } = req.params;
+  const chatId = number.includes("@") ? number : `${number}@c.us`;
+
+  recordManualMessage(chatId);
+
+  res.json({
+    ok: true,
+    message: `Recorded manual message for ${number}. 4-day timer reset.`,
+  });
+});
+
 app.post("/send-bulk", async (req, res) => {
   const { items, delayMs = 1200 } = req.body;
   if (!Array.isArray(items) || items.length === 0) {
@@ -369,6 +444,9 @@ app.post("/send-bulk", async (req, res) => {
     try {
       const chatId = await ensureChatId(it.to);
       const m = await client.sendMessage(chatId, it.message);
+
+      // Track this as a manual message (resets the 4-day timer)
+      recordManualMessage(chatId);
 
       trackSentMessage(m.id.id, chatId, it.message);
 
@@ -401,6 +479,10 @@ app.post("/send-media", upload.single("file"), async (req, res) => {
 
     const media = new MessageMedia(mimetype, b64, filename);
     const m = await client.sendMessage(chatId, media, { caption });
+
+    // Track this as a manual message (resets the 4-day timer)
+    recordManualMessage(chatId);
+
     fs.unlink(filePath, () => {});
     res.json({ ok: true, id: m.id.id, to: chatId, filename });
   } catch (e) {

@@ -1,15 +1,26 @@
-# WhatsApp Bot API
+# Wh## ✨ Features
 
-A powerful WhatsApp Web automation bot built with Node.js that provides REST API endpoints for sending messages, managing auto-replies, and handling media files.
-
-## ✨ Features
-
-- 🤖 **Auto-reply system** with personalized messages
+- 🤖 **Professional Auto-reply system** with 4-day rule and personalized messages
 - 📱 **Send text messages** to individual contacts
 - 📸 **Send media files** (images, videos, documents)
 - 📊 **Message tracking** and reply detection
 - 📋 **QR code generation** for authentication
 - 🛠️ **RESTful API** with comprehensive endpoints
+- ⏰ **Intelligent cooldown** - Only auto-replies after 4+ days of no manual contact
+- 💼 **Business-grade messaging** with professional tone and structure API
+
+A powerful WhatsApp Web automation bot built with Node.js that provides REST API endpoints for sending messages, managing auto-replies, and handling media files.
+
+## ✨ Features
+
+- 🤖 **Smart Auto-reply system** with 4-day rule and personalized messages
+- �️ **Auto-reply with images** - Send both text and image automatically
+- �📱 **Send text messages** to individual contacts
+- 📸 **Send media files** (images, videos, documents)
+- 📊 **Message tracking** and reply detection
+- 📋 **QR code generation** for authentication
+- 🛠️ **RESTful API** with comprehensive endpoints
+- ⏰ **Intelligent cooldown** - Only auto-replies after 4+ days of no manual contact
 
 ## 🚀 Quick Start
 
@@ -306,6 +317,44 @@ sudo crontab -e
 # 0 12 * * * /usr/bin/certbot renew --quiet
 ```
 
+## 🤖 Professional Auto-Reply System
+
+The bot features an intelligent auto-reply system with a **4-day rule** to ensure professional communication:
+
+### How It Works
+
+1. **New Contact**: When someone messages you for the first time, they get an immediate professional auto-reply
+2. **Existing Contacts**: Auto-reply is only sent if **4+ days** have passed since your last manual message to them
+3. **Manual Messages Reset Timer**: When you send a message via any API endpoint, it resets the 4-day timer for that contact
+4. **Duplicate Prevention**: Won't send multiple auto-replies to prevent spam
+
+### Auto-Reply Features
+
+- **Professional Tone**: Business-appropriate messaging with clear structure
+- **Name Personalization**: Uses `{name}` placeholder to include contact's name
+- **Contact Information**: Includes email and portfolio links
+- **Response Time Expectations**: Sets clear expectations for reply timing
+- **Smart Tracking**: Monitors your communication patterns
+
+### Professional Message Template
+
+The auto-reply includes:
+
+- Formal greeting with personalized name
+- Clear business contact information
+- Expected response timeframe
+- Professional credentials and portfolio link
+- Proper business signature
+
+### Example Workflow
+
+```
+Day 1: John messages you → Gets professional auto-reply immediately
+Day 2: John messages again → No auto-reply (cooldown active)
+Day 3: You reply to John manually → Timer resets
+Day 8: John messages you → Gets professional auto-reply (4+ days since your last message)
+```
+
 ## 📡 API Endpoints
 
 ### Authentication
@@ -439,8 +488,11 @@ GET /auto-reply/status
 {
   "ok": true,
   "enabled": true,
-  "message": "Current auto-reply message",
-  "totalAutoReplied": 42
+  "message": "Current professional auto-reply message",
+  "totalAutoReplied": 42,
+  "totalTrackedContacts": 156,
+  "fourDayRule": "Auto-reply only if 4+ days since last manual message",
+  "messageType": "Professional business auto-reply"
 }
 ```
 
@@ -590,4 +642,3 @@ railway logs
 If you find this project helpful, please give it a ⭐ on GitHub!
 
 For support, email contact@abhishekpanthee.com.np or create an issue on GitHub.
-
