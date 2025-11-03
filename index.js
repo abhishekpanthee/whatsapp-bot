@@ -68,7 +68,8 @@ I appreciate your patience and look forward to connecting with you soon.
 
 Best regards,
 Abhishek Panthee
-Cybersecurity Consultant & Software Developer`;
+Cybersecurity Consultant & Engineer
+Email: info@abhishekpanthee.com.np`;
 
 // Track when I last manually sent a message to each contact (for 4-day rule)
 const lastManualMessage = new Map(); // chatId -> timestamp
